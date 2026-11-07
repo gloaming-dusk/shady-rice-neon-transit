@@ -6,26 +6,29 @@ Compared with **Night Observatory**, Neon Transit deliberately keeps physics and
 
 ## Run
 
-From the repository root:
+A rice for [Shady](https://github.com/gloaming-dusk/shady). It needs a Shady
+checkout with a build in `build/` (`./tools/build.sh`), by default in `../shady`
+next to this repository; `SHADY_ROOT` names another:
 
 ```sh
-nix develop -c ninja -C build
-./rices/neon-transit/run.sh
+SHADY_ROOT=~/src/shady ./run.sh
 ```
 
 For DRM/libinput on a VT:
 
 ```sh
-./rices/neon-transit/run-native.sh
+./run-native.sh
 ```
+
+`./install.sh` makes it your Shady session's rice.
 
 Both launchers start `shady-shell` plus one terminal when no extra Shady arguments are supplied.
 
 Magnetic Windows and Window Portal are opt-in too:
 
 ```sh
-SHADY_NEON_MAGNETIC=1 ./rices/neon-transit/run.sh
-SHADY_NEON_PORTAL=1 ./rices/neon-transit/run.sh
+SHADY_NEON_MAGNETIC=1 ./run.sh
+SHADY_NEON_PORTAL=1 ./run.sh
 ```
 
 With magnetic docking, Neon Transit skips its default overview position writer so
@@ -73,6 +76,6 @@ own the per-window shader slot.
 - title bar: `28px`, `#071A22` inactive / `#0E4052` focused / `#E9FBFF` text
 - shell accents remain cyan, which intentionally ties the standalone shell into the world palette.
 
-The floor has a stronger minor/major grid than Night Observatory and fades farther into depth. Neon Transit also uses `shady.set("window_opacity", 0.90)` so the world subtly shows through application surfaces; any config can set `window_opacity` from `0.0` (fully transparent) to `1.0` (opaque). Application textures stay bright while Shady's spatial effect is present but restrained. The default overview behavior lives in `plugins/spatial_overview.c`; the optional focus style lives in `plugins/focus_depth.c`, and the liquid-surface effect lives in `plugins/water_windows.c`. Close animations are plugin-selectable too. Neon Transit keeps the built-in crumple by default; run `SHADY_NEON_CLOSE_STYLE=slide ./rices/neon-transit/run.sh` to load `plugins/close_slide_fade.c`, which moves the window down/right while fading it out. The same close effect is used by compositor key bindings, native `window_close()`, and Lua `window:close()`.
+The floor has a stronger minor/major grid than Night Observatory and fades farther into depth. Neon Transit also uses `shady.set("window_opacity", 0.90)` so the world subtly shows through application surfaces; any config can set `window_opacity` from `0.0` (fully transparent) to `1.0` (opaque). Application textures stay bright while Shady's spatial effect is present but restrained. The default overview behavior lives in `plugins/spatial_overview.c`; the optional focus style lives in `plugins/focus_depth.c`, and the liquid-surface effect lives in `plugins/water_windows.c`. Close animations are plugin-selectable too. Neon Transit keeps the built-in crumple by default; run `SHADY_NEON_CLOSE_STYLE=slide ./run.sh` to load `plugins/close_slide_fade.c`, which moves the window down/right while fading it out. The same close effect is used by compositor key bindings, native `window_close()`, and Lua `window:close()`.
 
 The water shaders use high precision where supported to keep time, UV interpolation, and surface normals smooth. Default wave amplitude and fine refraction are restrained so terminal text stays readable. The water plugin drives both shape and surface appearance: mesh waves and multi-scale UV refraction are combined with Fresnel cyan edge light, moving broad/specular glints, water tint, caustic bands, crest/trough shading, and thin-water transmission in the fragment shader. Refraction also follows the deformed surface normal so the application texture bends in the same direction as the 3D water sheet. Surface lighting is size-adaptive: small windows keep the liquid deformation/refraction but automatically soften Fresnel/specular intensity, while large windows retain the full wet-surface reflection. All three use the native C plugin API rather than Lua animation code. The water effect intentionally requests continuous frames while active and returns to demand-driven idle immediately when disabled.
