@@ -80,33 +80,38 @@ if not spatial_motion_plugin or explicit_depth_mode then
     end
 end
 
+-- From github.com/gloaming-dusk/shady-plugins, on the plugin search path.
+local function optional_plugin(env, name)
+    if os.getenv(env) then
+        shady.plugin(os.getenv(env))
+    else
+        shady.plugins.load(name)
+    end
+end
+
 -- Experimental spatial docking. Nearby windows spring toward stable edge-to-edge
 -- structures; Super+M toggles the behavior at runtime.
 if magnetic_enabled then
-    shady.plugin(os.getenv("SHADY_MAGNETIC_PLUGIN") or
-        (root .. "/build/libshady-plugin-magnetic-windows.so"))
+    optional_plugin("SHADY_MAGNETIC_PLUGIN", "magnetic-windows")
 end
 
 -- Orbital workspace. Super+C makes the focused window the anchor while the other
 -- windows orbit through XY and depth; toggling again restores the exact old layout.
 if constellation_enabled then
-    shady.plugin(os.getenv("SHADY_CONSTELLATION_PLUGIN") or
-        (root .. "/build/libshady-plugin-window-constellation.so"))
+    optional_plugin("SHADY_CONSTELLATION_PLUGIN", "window-constellation")
 end
 
 -- Live window portal. Super+P opens/cycles the focused window's source and
 -- Super+Shift+P closes it. Portal and water both own a custom window shader,
 -- so portal mode intentionally takes precedence over the default water effect.
 if portal_enabled then
-    shady.plugin(os.getenv("SHADY_PORTAL_PLUGIN") or
-        (root .. "/build/libshady-plugin-window-portal.so"))
+    optional_plugin("SHADY_PORTAL_PLUGIN", "window-portal")
 end
 
 -- Keep application text stable by default. Opt into animated liquid
 -- surfaces with SHADY_NEON_WATER=1; Super+W then toggles the effect.
 if not portal_enabled and os.getenv("SHADY_NEON_WATER") == "1" then
-    shady.plugin(os.getenv("SHADY_WATER_PLUGIN") or
-        (root .. "/build/libshady-plugin-water-windows.so"))
+    optional_plugin("SHADY_WATER_PLUGIN", "water-windows")
 elseif portal_enabled and os.getenv("SHADY_NEON_WATER") == "1" then
     shady.log("Neon Transit: portal mode takes precedence over the water window shader")
 end
@@ -114,8 +119,7 @@ end
 -- Close style stays on the built-in crumple by default. Opt into the example
 -- native close-effect plugin with SHADY_NEON_CLOSE_STYLE=slide.
 if os.getenv("SHADY_NEON_CLOSE_STYLE") == "burn" then
-    shady.plugin(os.getenv("SHADY_CLOSE_PLUGIN") or
-        (root .. "/build/libshady-plugin-close-burn.so"))
+    optional_plugin("SHADY_CLOSE_PLUGIN", "close-burn")
 end
 
 shady.bind("quit", "Super+Shift+Escape")

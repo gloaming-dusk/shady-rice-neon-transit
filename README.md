@@ -24,7 +24,8 @@ For DRM/libinput on a VT:
 
 Both launchers start `shady-shell` plus one terminal when no extra Shady arguments are supplied.
 
-Magnetic Windows and Window Portal are opt-in too:
+Water, Magnetic Windows, Window Constellation and Window Portal are opt-in, and need
+their plugin from [shady-plugins](https://github.com/gloaming-dusk/shady-plugins):
 
 ```sh
 SHADY_NEON_MAGNETIC=1 ./run.sh
